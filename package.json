@@ -1,0 +1,16 @@
+{
+  "name": "dlp-poc-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "env:dev": "node scripts/select-env.mjs dev",
+    "env:stage": "node scripts/select-env.mjs stage",
+    "env:prod": "node scripts/select-env.mjs prod",
+    "build:extension:dev": "node scripts/build-extension.mjs dev",
+    "build:extension:stage": "node scripts/build-extension.mjs stage",
+    "build:extension:prod": "node scripts/build-extension.mjs prod"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.0"
+  }
+}

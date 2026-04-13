@@ -1,0 +1,22 @@
+name = "dlp-triage-poc"
+main = "worker.ts"
+compatibility_date = "2026-04-10"
+
+[vars]
+ALLOWED_EXTENSION_IDS = ""
+# Comma-separated: hostnames that end with these suffixes are "internal" (safe for sensitive paste).
+# Example: "corp.example.com,example.internal,localhost"
+# Empty = no internal destinations → any PAN/SSN pattern on the public web is HIGH.
+INTERNAL_HOST_SUFFIXES = ""
+
+[env.dev.vars]
+ALLOWED_EXTENSION_IDS = ""
+INTERNAL_HOST_SUFFIXES = ""
+
+[env.stage.vars]
+ALLOWED_EXTENSION_IDS = ""
+INTERNAL_HOST_SUFFIXES = ""
+
+[env.prod.vars]
+ALLOWED_EXTENSION_IDS = ""
+INTERNAL_HOST_SUFFIXES = ""

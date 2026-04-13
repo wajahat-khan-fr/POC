@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "DLP Paste PoC",
+  "version": "0.1.0",
+  "description": "Non-blocking paste monitor PoC with Shadow DOM tooltip.",
+  "minimum_chrome_version": "114",
+  "permissions": [],
+  "host_permissions": [
+    "https://*.workers.dev/*",
+    "https://*.extemsion-dlp.workers.dev/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; base-uri 'none'"
+  },
+  "externally_connectable": {
+    "matches": []
+  },
+  "incognito": "not_allowed",
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
