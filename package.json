@@ -11,6 +11,9 @@
     "build:extension:prod": "node scripts/build-extension.mjs prod"
   },
   "devDependencies": {
-    "esbuild": "^0.28.0"
+    "dotenv": "^8.2.0",
+    "esbuild": "^0.28.0",
+    "node-fetch": "^3.3.2",
+    "typescript": "^6.0.2"
   }
 }
