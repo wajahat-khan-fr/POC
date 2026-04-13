@@ -9,11 +9,12 @@ type TriageInput = {
   destinationUrl: string;
 };
 
-const CC_16_DIGITS = /\b\d{16}\b/;
-const SSN_FORMATTED = /\b\d{3}-\d{2}-\d{4}\b/;
+const CC_13_19_DIGITS = /\b\d{13,19}\b/g;
+const SSN_FORMATTED = /\b(?!000|666|9\d{2})\d{3}-(?!00)\d{2}-(?!0000)\d{4}\b/;
 const HIGH_RISK_DOMAINS = ["pastebin.com", "reddit.com"];
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 240;
+const RATE_MAP_MAX_SIZE = 10_000;
 const rateState = new Map<string, { count: number; windowStart: number }>();
 const JSON_CONTENT_TYPE = "application/json";
 
@@ -22,6 +23,27 @@ let cachedAllowedIds: Set<string> = new Set();
 
 let cachedInternalSuffixesRaw = "";
 let cachedInternalSuffixes: string[] = [];
+
+function passesLuhn(digits: string): boolean {
+  let sum = 0;
+  let alternate = false;
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let n = parseInt(digits[i], 10);
+    if (alternate) {
+      n *= 2;
+      if (n > 9) n -= 9;
+    }
+    sum += n;
+    alternate = !alternate;
+  }
+  return sum % 10 === 0;
+}
+
+function containsCreditCardNumber(text: string): boolean {
+  const matches = text.match(CC_13_19_DIGITS);
+  if (!matches) return false;
+  return matches.some(passesLuhn);
+}
 
 function jsonResponse(status: number, payload: unknown): Response {
   return new Response(JSON.stringify(payload), {
@@ -102,9 +124,19 @@ function requestIp(request: Request): string {
   );
 }
 
+function evictExpiredEntries(now: number): void {
+  if (rateState.size <= RATE_MAP_MAX_SIZE) return;
+  for (const [key, entry] of rateState) {
+    if (now - entry.windowStart > RATE_LIMIT_WINDOW_MS) {
+      rateState.delete(key);
+    }
+  }
+}
+
 function isRateLimited(request: Request): boolean {
   const ip = requestIp(request);
   const now = Date.now();
+  evictExpiredEntries(now);
   const current = rateState.get(ip);
   if (!current || now - current.windowStart > RATE_LIMIT_WINDOW_MS) {
     rateState.set(ip, { count: 1, windowStart: now });
@@ -131,7 +163,7 @@ function isAllowedExtensionOrigin(request: Request, env: Env): boolean {
 }
 
 function evaluateRisk(input: TriageInput, env: Env) {
-  const containsCreditCard = CC_16_DIGITS.test(input.pastedText);
+  const containsCreditCard = containsCreditCardNumber(input.pastedText);
   const containsSSN = SSN_FORMATTED.test(input.pastedText);
   const sensitiveDetected = containsCreditCard || containsSSN;
 
