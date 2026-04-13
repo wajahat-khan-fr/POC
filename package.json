@@ -6,11 +6,14 @@
     "env:dev": "node scripts/select-env.mjs dev",
     "env:stage": "node scripts/select-env.mjs stage",
     "env:prod": "node scripts/select-env.mjs prod",
-    "build:extension:dev": "node scripts/build-extension.mjs dev",
-    "build:extension:stage": "node scripts/build-extension.mjs stage",
-    "build:extension:prod": "node scripts/build-extension.mjs prod"
+    "build:extension:dev": "node init && node scripts/build-extension.mjs dev",
+    "build:extension:stage": "node init && node scripts/build-extension.mjs stage",
+    "build:extension:prod": "node init && node scripts/build-extension.mjs prod"
   },
   "devDependencies": {
-    "esbuild": "^0.28.0"
+    "dotenv": "^8.2.0",
+    "esbuild": "^0.28.0",
+    "node-fetch": "^3.3.2",
+    "typescript": "^6.0.2"
   }
 }
